@@ -150,10 +150,16 @@ namespace BatchClient
                                 {
                                     var paginatedfiles = await client.GetTranscriptionFilesAsync(transcription.Links.Files).ConfigureAwait(false);
 
-                                    var resultFile = paginatedfiles.Values.FirstOrDefault(f => f.Kind == ArtifactKind.Transcription);
-                                    var result = await client.GetTranscriptionResultAsync(new Uri(resultFile.Links.ContentUrl)).ConfigureAwait(false);
-                                    Console.WriteLine("Transcription succeeded. Results: ");
-                                    Console.WriteLine(JsonConvert.SerializeObject(result, SpeechJsonContractResolver.WriterSettings));
+                                    var resultFiles = paginatedfiles.Values.Where(f => f.Kind == ArtifactKind.Transcription);
+                                    if (resultFiles != null && resultFiles.Count() > 0)
+                                    {
+                                        foreach (var resultFile in resultFiles)
+                                        {
+                                            var result = await client.GetTranscriptionResultAsync(new Uri(resultFile.Links.ContentUrl)).ConfigureAwait(false);
+                                            Console.WriteLine("Transcription succeeded. Results: ");
+                                            Console.WriteLine(JsonConvert.SerializeObject(result, SpeechJsonContractResolver.WriterSettings)); 
+                                        }
+                                    }
                                 }
                                 else
                                 {
